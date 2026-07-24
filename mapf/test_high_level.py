@@ -38,6 +38,7 @@ class TestFindConflict(unittest.TestCase):
             1: [(2, 2), (1, 0), (0, 2)],
         }
         self.assertEqual(find_conflict(solution), (0, 1, (1, 0), 1))
+        x = None
 
     def test_edge_conflict_swap(self):
         # Agents swap cells across the same timestep: agent 0 goes
