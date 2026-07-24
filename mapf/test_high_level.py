@@ -18,7 +18,6 @@ class TestFindConflict(unittest.TestCase):
             1: [(0, 5), (1, 5), (2, 5)],
         }
         self.assertIsNone(find_conflict(solution))
-    
     def test_no_conflict_shared_cell_different_times(self):
         # Both agents visit (1,0) at some point, but never at the same
         # time -- agent 1 is there at t=0, agent 0 is there at t=1.
@@ -39,6 +38,7 @@ class TestFindConflict(unittest.TestCase):
             1: [(2, 2), (1, 0), (0, 2)],
         }
         self.assertEqual(find_conflict(solution), (0, 1, (1, 0), 1))
+        x = None
 
     def test_edge_conflict_swap(self):
         # Agents swap cells across the same timestep: agent 0 goes
