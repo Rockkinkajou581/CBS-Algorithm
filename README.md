@@ -8,7 +8,7 @@ Implementation of: [Sharon, Stern, Felner & Sturtevant, *"Conflict-Based Search 
 
 CBS is a two-level algorithm:
 
-- **High level** ([`high_level.py`](mapf/high_level.py)) searches a *constraint tree* (CT). Each node holds one path per agent and the set of constraints that produced them. Starting from an unconstrained root, it repeatedly pops the lowest-cost node, checks the joint solution for the first conflict between any two agents, and — if one exists — branches into two children, each forbidding one of the two agents from the conflicting move. The search ends when a node's joint solution is completely conflict-free; because nodes are expanded in cost order, that solution is optimal.
+- **High level** ([`high_level.py`](mapf/high_level.py)) searches a *constraint tree* (CT). Each node holds one path per agent and the set of constraints that produced them. Starting from an unconstrained root, the algorithm repeatedly pops the lowest-cost node, checks the joint solution for the first conflict between any two agents, and — if one exists — branches into two children, each stopping one of the two agents from the conflicting move. The search ends when a node's solution is completely conflict-free; because nodes are expanded in cost order, that solution is optimal.
 
 - **Low level** ([`low_level.py`](mapf/low_level.py)) plans a single agent's path with `space_time_astar`, an A* search over *(cell, timestep)* states.
 
@@ -20,7 +20,7 @@ Two conflict types are detected and resolved:
 
 | File | Responsibility |
 |---|---|
-| [`mapf/grid.py`](mapf/grid.py) | Static grid: bounds, obstacles, 4-connected neighbor generation |
+| [`mapf/grid.py`](mapf/grid.py) | Static grid holding available locations |
 | [`mapf/heuristic.py`](mapf/heuristic.py) | Backward BFS from each goal — heuristic for A* |
 | [`mapf/constraints.py`](mapf/constraints.py) | `VertexConstraint` / `EdgeConstraint` — what the high level hands to the low level |
 | [`mapf/low_level.py`](mapf/low_level.py) | `space_time_astar` — A* for finding shortest path of a single agent|
