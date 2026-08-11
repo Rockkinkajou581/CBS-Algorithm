@@ -1,14 +1,5 @@
-"""Unit tests for space_time_astar against instances small enough to
-verify the optimal path by hand.
-
-Note: as of this writing, space_time_astar finds correct paths in the
-unconstrained case, but does not yet filter candidate states against
-vertex_constraints/edge_constraints during expansion. So the constraint
-tests below encode the *intended* behavior and are expected to fail
-until that filtering is added inside the `for neighbor_cell in ...`
-loop. test_infeasible_returns_none is expected to error (KeyError) until
-space_time_astar checks `start in h` before searching. Left in on
-purpose as a checklist, not commented out.
+"""
+Unit tests for A*. Tests were generated with Claude Code
 """
 
 import unittest

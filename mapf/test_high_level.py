@@ -1,7 +1,4 @@
-"""Unit tests for find_conflict against hand-verifiable joint solutions.
-
-solution here is dict[agent_id] -> path, exactly the shape
-space_time_astar returns per agent (a list of cells, one per timestep).
+"""Unit tests for find_conflict against hand-verifiable joint solutions. Tests were generated with Claude Code
 """
 
 import unittest

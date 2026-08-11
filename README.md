@@ -1,6 +1,6 @@
 # CBS: Conflict-Based Search for Multi-Agent Pathfinding
 
-A from-scratch Python implementation of **Conflict-Based Search (CBS)**, an optimal algorithm for the Multi-Agent Path Finding (MAPF) problem: given a grid, a set of agents, and a start/goal cell for each, find a set of paths — one per agent — that are individually shortest and collectively free of collisions.
+A from-scratch Python implementation of **Conflict-Based Search (CBS)**, an optimal algorithm for the Multi-Agent Path Finding (MAPF) problem: given a grid, a set of agents, and a start/goal cell for each, find a set of paths per agent that are shortest and free of collisions.
 
 Implementation of: [Sharon, Stern, Felner & Sturtevant, *"Conflict-Based Search For Optimal Multi-Agent Pathfinding"*](https://www.sciencedirect.com/science/article/pii/S0004370214001386).
 
@@ -8,9 +8,9 @@ Implementation of: [Sharon, Stern, Felner & Sturtevant, *"Conflict-Based Search 
 
 CBS is a two-level algorithm:
 
-- **High level** ([`high_level.py`](mapf/high_level.py)) searches a *constraint tree* (CT). Each node holds one path per agent and the set of constraints that produced them. Starting from an unconstrained root, it repeatedly pops the lowest-cost node, checks the joint solution for the first conflict between any two agents, and — if one exists — branches into two children, each forbidding one of the two agents from the conflicting move. The search ends when a node's joint solution is completely conflict-free; because nodes are expanded in cost order, that solution is optimal under sum-of-individual-costs (SIC).
+- **High level** ([`high_level.py`](mapf/high_level.py)) searches a *constraint tree* (CT). Each node holds one path per agent and the set of constraints that produced them. Starting from an unconstrained root, it repeatedly pops the lowest-cost node, checks the joint solution for the first conflict between any two agents, and — if one exists — branches into two children, each forbidding one of the two agents from the conflicting move. The search ends when a node's joint solution is completely conflict-free; because nodes are expanded in cost order, that solution is optimal.
 
-- **Low level** ([`low_level.py`](mapf/low_level.py)) plans a single agent's path with `space_time_astar`, an A* search over *(cell, timestep)* states rather than just cells — the same cell is fine to revisit at a different time, and an agent can wait in place. It respects the constraints handed down from the high level and correctly handles the case where an agent must keep holding its goal cell if a later constraint forbids it from being there.
+- **Low level** ([`low_level.py`](mapf/low_level.py)) plans a single agent's path with `space_time_astar`, an A* search over *(cell, timestep)* states.
 
 Two conflict types are detected and resolved:
 - **Vertex conflicts** — two agents occupy the same cell at the same time
@@ -21,9 +21,9 @@ Two conflict types are detected and resolved:
 | File | Responsibility |
 |---|---|
 | [`mapf/grid.py`](mapf/grid.py) | Static grid: bounds, obstacles, 4-connected neighbor generation |
-| [`mapf/heuristic.py`](mapf/heuristic.py) | Backward BFS from each goal — exact, admissible distance heuristic for A* |
+| [`mapf/heuristic.py`](mapf/heuristic.py) | Backward BFS from each goal — heuristic for A* |
 | [`mapf/constraints.py`](mapf/constraints.py) | `VertexConstraint` / `EdgeConstraint` — what the high level hands to the low level |
-| [`mapf/low_level.py`](mapf/low_level.py) | `space_time_astar` — single-agent, constraint-respecting shortest path |
+| [`mapf/low_level.py`](mapf/low_level.py) | `space_time_astar` — A* for finding shortest path of a single agent|
 | [`mapf/high_level.py`](mapf/high_level.py) | `conflict_based_search` — the constraint-tree search over joint solutions |
 
 ## Usage
@@ -42,10 +42,4 @@ agents = {
 solution = conflict_based_search(grid, agents)
 # solution: dict[agent_id] -> list of (x, y) cells, one per timestep,
 # or None if no conflict-free solution exists
-```
-
-## Testing
-
-```bash
-python -m pytest mapf/
 ```

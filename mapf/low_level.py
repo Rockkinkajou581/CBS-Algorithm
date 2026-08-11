@@ -1,23 +1,4 @@
-"""Single-agent search in space-time: space_time_astar.
-
-State is (cell, timestep), not just cell — the same cell is fine to
-revisit at a different time, and an agent may need to wait in place to
-let a constraint's time window pass. Actions per step: move to a
-4-neighbor, or wait.
-
-Must respect:
-  - VertexConstraint(agent, loc, t): can't be at loc at time t.
-  - EdgeConstraint(agent, loc_from, loc_to, t): can't take that
-    transition between t and t+1.
-  - The "sitting at goal" subtlety: reaching the goal cell doesn't end
-    the search if a *later* constraint forbids this agent from being at
-    the goal at some future time (another agent needs to pass through
-    it) — the agent must be able to hold the goal for all t' >= arrival.
-    Concretely: track the max constraint time for this agent and don't
-    accept a goal state as terminal until t >= that max.
-
-Uses heuristic.backward_bfs(grid, goal) for the h-value, and grid.py for
-neighbor generation / obstacle checks.
+"""Single-agent search in space-time. Implementation of A*
 """
 
 from mapf.constraints import EdgeConstraint, VertexConstraint
@@ -55,7 +36,7 @@ def space_time_astar(
       closed.add(pop)
       if cell == goal and t >= max_constraint_time:
         return unravel(came_from, (goal, t))
-      for neighbor_cell in grid.neighbors(cell) + [cell]: #need to include staying in place
+      for neighbor_cell in grid.neighbors(cell) + [cell]:
         state = (neighbor_cell, t+1)
         if VertexConstraint(agent, neighbor_cell, t + 1) in vertex_constraints:
           continue

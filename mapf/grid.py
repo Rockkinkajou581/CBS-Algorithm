@@ -1,12 +1,5 @@
-"""Static grid map: bounds, obstacles, neighbor generation.
-
-Shared by heuristic.py (backward BFS) and low_level.py (space-time A*).
-Only knows about *static* obstacles — other agents are not obstacles here,
-they're handled as constraints passed into the low-level search.
-
-Coordinate convention: cell == (x, y), with 0 <= x < width and
-0 <= y < height. The four moves are the 4-connected neighbors; the
-wait-in-place action lives in low_level.py, not here.
+"""
+Grid holding (x,y) locations within width and height. Returns the neighbors.
 """
 
 from dataclasses import dataclass

@@ -1,36 +1,7 @@
 
 
-"""CBS high-level search: the constraint tree (CT).
-
-Each CTNode holds:
-  - constraints: the accumulated set of Vertex/EdgeConstraint for this
-    branch (inherited from its parent plus one new constraint).
-  - solution: dict[agent] -> path, one path per agent, each computed by
-    space_time_astar under this node's constraints.
-  - cost: sum of individual path costs (SIC).
-
-Algorithm:
-  1. Root node: no constraints, every agent gets its own unconstrained
-     shortest path.
-  2. Push root onto a priority queue ordered by cost (lowest first).
-  3. Pop the lowest-cost node. Validate its solution: scan all pairs of
-     paths for the first vertex conflict (two agents, same cell, same
-     time) or edge conflict (two agents swap cells across one timestep).
-  4. No conflict -> this solution is optimal, return it.
-  5. Conflict found between agents A and B at (loc, t) [or edge, t] ->
-     spawn two children:
-       child_A = parent constraints + constraint forbidding A
-       child_B = parent constraints + constraint forbidding B
-     For each child, only re-run space_time_astar for the newly
-     constrained agent (every other agent's path is untouched and
-     still valid under the inherited constraints), recompute cost,
-     push onto the queue. If that agent's re-plan fails, drop the
-     child (infeasible branch).
-  6. Repeat from 3.
-
-This file depends on low_level.space_time_astar and constraints.py; it
-does not touch grid.py or heuristic.py directly (those are the low
-level's concern).
+"""
+CBS high-level search, see README
 """
 
 import heapq
@@ -42,7 +13,7 @@ from mapf.low_level import space_time_astar
 
 
 class CTNode:
-    """One node of the constraint tree — see module docstring."""
+    """One node of the constraint tree"""
 
     def __init__(self, constraints, solution, cost):
       self.constraints = constraints
@@ -70,11 +41,10 @@ def find_conflict(solution: dict):
       for agent, path in solution.items():
         loc = get_loc(path, t)
         if seen.get(loc) is None:
-          seen[loc] = agent #store the agent that collided with it in 
+          seen[loc] = agent 
         else:
           return (seen[loc], agent, loc, t)
 
-        #edges
         (a, b) = get_edge(path, t)
 
         if(a == b):
@@ -85,8 +55,8 @@ def find_conflict(solution: dict):
         else:
           return (edges[(b,a)], agent, (a, b), t)
     return None
-    """Return the first (agent_a, agent_b, loc_or_edge, time) conflict in
-    `solution`, or None if the joint solution is conflict-free.
+    """
+    Return the first (agent_a, agent_b, loc_or_edge, time) conflict or None if the solution is conflict-free.
     """
 
 def cost(solution: dict):
@@ -129,8 +99,7 @@ def generate_one_node(grid: Grid, agents: dict, conflict: tuple, agenta: bool, n
 
 
 def conflict_based_search(grid: Grid, agents: dict) -> dict | None:
-    """agents: dict[agent_id] -> (start, goal).
-  
+    """
     Returns dict[agent_id] -> path (conflict-free, cost-optimal under
     SIC), or None if no solution exists.
     """
@@ -158,7 +127,4 @@ def conflict_based_search(grid: Grid, agents: dict) -> dict | None:
       heapq.heappush(open, (N2.cost, next(counter), N2))
 
 
-      
-      
-    #solve the problems for the given constraints (intially empty)
-  
+    
