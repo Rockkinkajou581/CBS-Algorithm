@@ -1,5 +1,4 @@
-"""Single-agent search in space-time. Implementation of A*
-"""
+"""Single-agent search in space-time. Implementation of A*"""
 
 from mapf.constraints import EdgeConstraint, VertexConstraint
 from mapf.grid import Grid
@@ -16,6 +15,7 @@ def space_time_astar(
     max_constraint_time: int
 ) -> list[tuple[int, int]] | None:
 
+    #get hueristic
     h = backward_bfs(grid, goal)
     start_state = (start, 0)
     if start not in h:
@@ -24,6 +24,7 @@ def space_time_astar(
     g = {}
     g[start_state] = 0
     heap = []
+    #stores path
     came_from = {}
     closed = set()
 
@@ -31,13 +32,16 @@ def space_time_astar(
     while True:
       priority, (cell, t) = heapq.heappop(heap) #take apart the popped state
       pop = (cell, t)
+      #preventing double visiting
       if pop in closed:
         continue
       closed.add(pop)
+      #need t to be more than max constraint to avoid collisions happening after path has ended
       if cell == goal and t >= max_constraint_time:
         return unravel(came_from, (goal, t))
       for neighbor_cell in grid.neighbors(cell) + [cell]:
         state = (neighbor_cell, t+1)
+        #skip constraints
         if VertexConstraint(agent, neighbor_cell, t + 1) in vertex_constraints:
           continue
         if EdgeConstraint(agent, cell, neighbor_cell, t) in edge_constraints:
@@ -48,7 +52,7 @@ def space_time_astar(
           heapq.heappush(heap, (h[neighbor_cell] + canidate, state))
           came_from[state] = pop
 
-
+"""Function to take dictionary contianing from and construct path"""
 def unravel(came_from: dict, goal):
   path = [goal[0]]
   curr = goal
