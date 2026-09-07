@@ -4,6 +4,11 @@ A Python implementation of **Conflict-Based Search (CBS)**, an optimal algorithm
 
 Implementation of: [Sharon, Stern, Felner & Sturtevant, *"Conflict-Based Search For Optimal Multi-Agent Pathfinding"*](https://www.sciencedirect.com/science/article/pii/S0004370214001386).
 
+<p align="center">
+  <img src="docs/cbs-conflict.gif" width="780" alt="CBS resolving a single conflict"><br>
+  <em>Both agents want (2,2) at t=2. CBS branches on that conflict and replans one of them.</em>
+</p>
+
 ## How it works
 
 CBS is a two-level algorithm:
@@ -25,6 +30,9 @@ Two conflict types are detected and resolved:
 | [`mapf/constraints.py`](mapf/constraints.py) | `VertexConstraint` / `EdgeConstraint` — what the high level hands to the low level |
 | [`mapf/low_level.py`](mapf/low_level.py) | `space_time_astar` — A* for finding shortest path of a single agent|
 | [`mapf/high_level.py`](mapf/high_level.py) | `conflict_based_search` — the constraint-tree search over joint solutions |
+| [`bench.py`](bench.py) | Scaling sweep over agent count, with an independent solution verifier |
+| [`plot.py`](plot.py) | Draws the scaling chart from `bench.py`'s JSON |
+| [`viz.py`](viz.py) | Renders the conflict-resolution gif by replaying the real search |
 
 ## Usage
 
@@ -42,6 +50,35 @@ agents = {
 solution = conflict_based_search(grid, agents)
 # solution: dict[agent_id] -> list of (x, y) cells
 ```
+
+## Performance
+
+<p align="center">
+  <img src="docs/scaling.png" width="780" alt="CBS scaling on random 32x32 grids">
+</p>
+
+Ran trails on random 32×32 grids with 20% obstacles and 50 random instances per agent count, 10 second budget
+each. Start and goals are chosen to ensure a solution, and every solved instance is re-checked by an independent verifier for correct endpoints, legal moves, and vertex/edge conflicts.
+
+| agents | solved | median | p95 | max |
+|---|---|---|---|---|
+| 2 | 50/50 | 0.004s | 0.008s | 0.010s |
+| 4 | 50/50 | 0.009s | 0.037s | 0.042s |
+| 6 | 50/50 | 0.016s | 0.198s | 0.251s |
+| 8 | 48/50 | 0.025s | 0.283s | 1.907s |
+| 10 | 50/50 | 0.047s | 0.313s | 0.579s |
+| 12 | 48/50 | 0.079s | 2.415s | 3.380s |
+| 14 | 48/50 | 0.156s | 3.831s | 5.383s |
+| 16 | 41/50 | 0.687s | 4.750s | 5.824s |
+| 18 | 36/50 | 0.360s | 5.656s | 8.660s |
+
+
+```bash
+python3 bench.py --trials 50 --json docs/bench.json   # run the sweep
+python3 plot.py                                       # draw the chart
+python3 viz.py                                        # draw the conflict gif
+```
+
 ## Issues:
 **No solution** - code hangs if, say, you put two robots in a 1 wide room, going head on. The original paper uses a check for this. 
 

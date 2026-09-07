@@ -13,6 +13,7 @@ timeout in as though it were a measurement would be dishonest.
 """
 
 import argparse
+import json
 import random
 import signal
 import statistics
@@ -123,6 +124,7 @@ def main():
     ap.add_argument("--stop-below", type=float, default=0.80,
                     help="halt the sweep once success rate drops under this")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--json", default=None, help="also dump per-agent-count stats here")
     args = ap.parse_args()
 
     print(f"{args.size}x{args.size} grid, {args.density:.0%} obstacles, "
@@ -130,7 +132,7 @@ def main():
     print(f"{'agents':>7} {'solved':>8} {'median':>9} {'p95':>9} {'max':>9}  {'notes':<24}")
     print("-" * 72)
 
-    last_good = None
+    last_good, rows = None, []
     for n in range(args.start, args.max_agents + 1, args.step):
         rng = random.Random(args.seed + n * 1000)
         times, outcomes, bad = [], [], 0
@@ -159,8 +161,17 @@ def main():
         if bad:
             note.append(f"{bad} INVALID")
 
+        p95 = (sorted(times)[min(len(times) - 1, int(0.95 * len(times)))]
+               if times else None)
+        rows.append({"agents": n, "trials": total, "solved": solved,
+                     "success": rate,
+                     "median": statistics.median(times) if times else None,
+                     "p95": p95,
+                     "max": max(times) if times else None,
+                     "min": min(times) if times else None,
+                     "times": sorted(times)})
+
         if times:
-            p95 = sorted(times)[min(len(times) - 1, int(0.95 * len(times)))]
             print(f"{n:>7} {solved:>3}/{total:<4} {statistics.median(times):>8.3f}s "
                   f"{p95:>8.3f}s {max(times):>8.3f}s  {', '.join(note):<24}")
         else:
@@ -172,6 +183,13 @@ def main():
         else:
             print(f"\nsuccess rate {rate:.0%} fell below {args.stop_below:.0%}, stopping sweep.")
             break
+
+    if args.json:
+        with open(args.json, "w") as fh:
+            json.dump({"size": args.size, "density": args.density,
+                       "timeout": args.timeout, "seed": args.seed,
+                       "rows": rows}, fh, indent=2)
+        print(f"\nwrote {args.json}")
 
     if last_good:
         n, rate, med, p95 = last_good
