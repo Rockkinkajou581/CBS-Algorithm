@@ -13,9 +13,9 @@ Implementation of: [Sharon, Stern, Felner & Sturtevant, *"Conflict-Based Search 
 
 CBS is a two-level algorithm:
 
-- **High level** ([`high_level.py`](mapf/high_level.py)) searches a *constraint tree* (CT). Each node holds one path per agent and the set of constraints that produced them. Starting from an unconstrained root, it repeatedly pops the lowest-cost node, checks the joint solution for the first conflict between any two agents, and branches into two children, each forbidding one of the two agents from the conflicting move. The search ends when a node's joint solution is completely conflict-free; because nodes are expanded in cost order, that solution must be optimal.
+- **High level** ([`high_level.py`](mapf/high_level.py)) searches a constraint tree (CT). Each node holds one path per agent and the set of constraints that produced them. Starting from an unconstrained root, it repeatedly pops the lowest-cost node, checks the joint solution for the first conflict between any two agents, and branches into two children, each forbidding one of the two agents from the conflicting move. The search ends when a node's joint solution is completely conflict-free; because nodes are expanded in cost order, that solution must be optimal.
 
-- **Low level** ([`low_level.py`](mapf/low_level.py)) plans a single agent's path with `space_time_astar`, an A* search over *(cell, timestep)* states.
+- **Low level** ([`low_level.py`](mapf/low_level.py)) plans a single agent's path with `space_time_astar`, an A* search over (cell, timestep) states.
 
 Two conflict types are detected and resolved:
 - **Vertex conflicts** — two agents occupy the same cell at the same time
