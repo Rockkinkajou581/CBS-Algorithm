@@ -29,7 +29,7 @@ def space_time_astar(
     closed = set()
 
     heapq.heappush(heap, (h[start], start_state))
-    while True:
+    while heap:
       priority, (cell, t) = heapq.heappop(heap) #take apart the popped state
       pop = (cell, t)
       #preventing double visiting
@@ -46,11 +46,16 @@ def space_time_astar(
           continue
         if EdgeConstraint(agent, cell, neighbor_cell, t) in edge_constraints:
           continue
+        #cell is walled off from the goal, so it can never lead anywhere
+        if neighbor_cell not in h:
+          continue
         canidate = g[pop] + 1
         if state not in g or canidate < g[state]:
           g[state] = canidate
           heapq.heappush(heap, (h[neighbor_cell] + canidate, state))
           came_from[state] = pop
+    #heap ran dry, agent is boxed in by its constraints
+    return None
 
 """Function to take dictionary contianing from and construct path"""
 def unravel(came_from: dict, goal):

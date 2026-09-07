@@ -43,7 +43,7 @@ solution = conflict_based_search(grid, agents)
 # solution: dict[agent_id] -> list of (x, y) cells
 ```
 ## Issues:
-**No solution** - code breaks if, say, you put two robots in a 1 wide room, going head on. The original paper uses a check for this. 
+**No solution** - code hangs if, say, you put two robots in a 1 wide room, going head on. The original paper uses a check for this. 
 
 **Unoptimal Hueristic calling** - BFS is rerun everytime in low_level when it doesn't need to and instead can be precomputed and stored for each goal. 
 

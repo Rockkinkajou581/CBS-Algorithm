@@ -99,7 +99,13 @@ def generate_one_node(grid: Grid, agents: dict, conflict: tuple, agenta: bool, n
     start, goal = agents[agent_b]
     max_time_constraint = max([vertex.time for vertex in v if vertex.agent == agent_b], default=0)
     new_node.solution[agent_b] = space_time_astar(grid, start, goal, agent_b, v, e, max_time_constraint)
+
+  #no path for the constrained agent, so this branch is a dead end and gets pruned
+  constrained = agent_a if agenta else agent_b
+  if new_node.solution[constrained] is None:
+    return False
   new_node.cost = cost(new_node.solution)
+  return True
 
 """Main CBS function. Returns dict[agents] -> list[nodes] (path per agent)"""
 def conflict_based_search(grid: Grid, agents: dict) -> dict | None:
@@ -114,7 +120,7 @@ def conflict_based_search(grid: Grid, agents: dict) -> dict | None:
     root_node = CTNode(set(), first_solution, cost(first_solution))
     open = []
     heapq.heappush(open, (root_node.cost, next(counter), root_node))
-    while True:
+    while open:
       priority, count, node = heapq.heappop(open)
       #get conflict
       conflict = find_conflict(node.solution)
@@ -124,11 +130,11 @@ def conflict_based_search(grid: Grid, agents: dict) -> dict | None:
       #make both children
       N1 = CTNode(set(), dict(), 0)
       N2 = CTNode(set(), dict(), 0)
-      generate_one_node(grid, agents, conflict, True, N1, node)
-      generate_one_node(grid, agents, conflict, False, N2, node)
 
-      heapq.heappush(open, (N1.cost, next(counter), N1))
-      heapq.heappush(open, (N2.cost, next(counter), N2))
+      if generate_one_node(grid, agents, conflict, True, N1, node):
+        heapq.heappush(open, (N1.cost, next(counter), N1))
+      if generate_one_node(grid, agents, conflict, False, N2, node):
+        heapq.heappush(open, (N2.cost, next(counter), N2))
 
-
-    
+    #whole constraint tree exhausted, no conflict free solution exists
+    return None
